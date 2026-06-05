@@ -1,0 +1,37 @@
+@model IReadOnlyList<Sadovod.Models.Entities.Order>
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+<h1 class="mb-3">Мои заказы</h1>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">Вы ещё не оформляли заказов.</div>
+}
+else
+{
+    foreach (var o in Model)
+    {
+        <div class="card sadovod-card mb-3">
+            <div class="card-header d-flex justify-content-between flex-wrap gap-2">
+                <div>
+                    <strong>Заказ №@o.Id</strong>
+                    <span class="text-muted ms-2">@o.OrderDate.ToString("dd.MM.yyyy HH:mm")</span>
+                </div>
+                <div>
+                    <span class="badge badge-info me-2">@o.Status?.Name</span>
+                    <span class="fw-bold text-success">@o.TotalAmount.ToString("0.00") ₽</span>
+                </div>
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var i in o.Items)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@(i.Product?.Name ?? "[удалён]") × @i.Quantity</span>
+                        <span>@((i.UnitPrice * i.Quantity).ToString("0.00")) ₽</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+}

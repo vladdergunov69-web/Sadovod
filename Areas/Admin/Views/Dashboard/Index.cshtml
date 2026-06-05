@@ -1,0 +1,56 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Дашборд";
+}
+<h1 class="mb-4">Дашборд</h1>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card sadovod-card text-center"><div class="card-body">
+            <div class="text-muted small">Товаров</div><h2 class="text-success mb-0">@Model.ProductsCount</h2>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card sadovod-card text-center"><div class="card-body">
+            <div class="text-muted small">Пользователей</div><h2 class="text-success mb-0">@Model.UsersCount</h2>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card sadovod-card text-center"><div class="card-body">
+            <div class="text-muted small">Заказов</div><h2 class="text-success mb-0">@Model.OrdersCount</h2>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card sadovod-card text-center"><div class="card-body">
+            <div class="text-muted small">Выручка (выполненные)</div><h2 class="text-success mb-0">@Model.CompletedRevenue.ToString("0.00") ₽</h2>
+        </div></div>
+    </div>
+</div>
+
+<div class="card sadovod-card">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Продажи за 14 дней</h5>
+        <canvas id="salesChart" height="80"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SalesByDay.Select(p => p.Day.ToString("dd.MM"))));
+            const data   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SalesByDay.Select(p => p.Amount)));
+            const ctx = document.getElementById('salesChart');
+            if (ctx && window.Chart) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: labels, datasets: [{
+                        label: 'Выручка, ₽', data: data,
+                        borderColor: '#2e7d32', backgroundColor: 'rgba(46,125,50,0.15)',
+                        fill: true, tension: 0.3
+                    }]},
+                    options: { responsive: true, plugins: { legend: { display: true } } }
+                });
+            }
+        })();
+    </script>
+}

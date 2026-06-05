@@ -1,0 +1,47 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card sadovod-card">
+            <div class="card-body">
+                <h3 class="card-title mb-3">Создать аккаунт</h3>
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="Login" class="form-label"></label>
+                        <input asp-for="Login" class="form-control" autocomplete="email" />
+                        <span asp-validation-for="Login" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" placeholder="+7 999 123-45-67" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+                </form>
+                <hr />
+                <p class="text-center small mb-0">Уже есть аккаунт? <a asp-action="Login">Войти</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

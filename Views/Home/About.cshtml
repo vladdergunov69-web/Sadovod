@@ -1,0 +1,30 @@
+@model Sadovod.Models.Entities.ShopSetting
+@{
+    ViewData["Title"] = "О нас";
+    var paragraphs = (Model.AboutUs ?? string.Empty)
+        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries);
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="text-center mb-5">
+            <div style="font-size: 3rem; line-height: 1;">🌱</div>
+            <h1 class="display-5 fw-bold mt-2 mb-3">О магазине «Садовод»</h1>
+            <div style="width: 60px; height: 3px; background: var(--accent-color);
+                        border-radius: 2px; margin: 0 auto;"></div>
+        </div>
+
+        <div class="card sadovod-card">
+            <div class="card-body p-4 p-lg-5">
+                <div class="about-text">
+                    @foreach (var para in paragraphs)
+                    {
+                        <p>@para</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

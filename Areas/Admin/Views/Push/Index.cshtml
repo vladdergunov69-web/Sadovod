@@ -1,0 +1,33 @@
+@model PushSendViewModel
+@{
+    ViewData["Title"] = "Push-уведомления";
+}
+<h1 class="mb-3">Push-уведомления</h1>
+<div class="alert alert-info">Активных подписчиков: <strong>@Model.SubscribersCount</strong></div>
+
+<div class="card sadovod-card">
+    <div class="card-body">
+        <form asp-action="Send" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Body" class="form-label"></label>
+                <textarea asp-for="Body" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Body" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Url" class="form-label"></label>
+                <input asp-for="Url" class="form-control" placeholder="https://..." />
+                <span asp-validation-for="Url" class="text-danger small"></span>
+            </div>
+            <button class="btn btn-success" type="submit" @(Model.SubscribersCount == 0 ? "disabled" : "")>📨 Отправить всем</button>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,53 @@
+@model Sadovod.Models.Entities.ShopSetting
+@{
+    ViewData["Title"] = "Контакты";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+}
+
+<h1 class="mb-4">Контакты</h1>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card sadovod-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Свяжитесь с нами</h5>
+                <p class="mb-2"><strong>📧 Email:</strong><br><a href="mailto:@Model.Email">@Model.Email</a></p>
+                <p class="mb-2"><strong>📞 Телефон:</strong><br><a href="tel:@Model.Phone">@Model.Phone</a></p>
+                <p class="mb-0"><strong>📍 Адрес:</strong><br>@Model.Address</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div id="map" style="height: 400px;" class="rounded shadow"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        (function () {
+            const address = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Address ?? ""));
+            const fallback = [55.7558, 37.6173];
+            const map = L.map('map').setView(fallback, 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            let marker = L.marker(fallback).addTo(map).bindPopup('Садовод').openPopup();
+            if (address) {
+                fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address))
+                    .then(r => r.json())
+                    .then(data => {
+                        if (Array.isArray(data) && data.length > 0) {
+                            const lat = parseFloat(data[0].lat);
+                            const lon = parseFloat(data[0].lon);
+                            map.setView([lat, lon], 15);
+                            marker.setLatLng([lat, lon]).bindPopup('Садовод — ' + address).openPopup();
+                        }
+                    }).catch(() => { /* keep fallback */ });
+            }
+        })();
+    </script>
+}

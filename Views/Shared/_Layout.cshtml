@@ -1,0 +1,121 @@
+@inject Sadovod.Services.ISettingsService Settings
+@inject Sadovod.Services.ICartService Cart
+@{
+    var shop = await Settings.GetAsync();
+    var cartCount = Cart.GetRaw(Context).Values.Sum();
+}
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] ?? "Садовод") — Интернет-магазин семян</title>
+    <script>
+        (function(){
+            var t=localStorage.getItem('sadovod-theme');
+            var d=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+            document.documentElement.setAttribute('data-theme',t||d);
+        })();
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg sticky-top sadovod-navbar">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    <span class="sadovod-logo">🌱 Садовод</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Меню">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Products" asp-action="Index">Каталог</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">О нас</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Contacts">Контакты</a></li>
+                        @if (User.IsInRole("Администратор"))
+                        {
+                            <li class="nav-item"><a class="nav-link text-warning" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Админ</a></li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav align-items-lg-center">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index">
+                                🛒 Корзина
+                                @if (cartCount > 0)
+                                {
+                                    <span class="badge rounded-pill bg-success">@cartCount</span>
+                                }
+                            </a>
+                        </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="MyOrders">Мои заказы</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Profile">@(User.FindFirst("FullName")?.Value ?? User.Identity.Name)</a></li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-link nav-link">Выход</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Войти</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Регистрация</a></li>
+                        }
+                        <li class="nav-item">
+                            <button id="theme-toggle" type="button" class="btn btn-outline-light ms-2" aria-label="Переключить тему"></button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container my-4">
+        @if (TempData["Info"] is string info)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @info
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="sadovod-footer mt-5 py-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h6 class="text-uppercase fw-bold">Садовод</h6>
+                    <p class="small mb-0">Семена и инструменты для дачи и сада с 2008 года.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-uppercase fw-bold">Контакты</h6>
+                    <p class="small mb-1">📧 @shop.Email</p>
+                    <p class="small mb-1">📞 @shop.Phone</p>
+                    <p class="small mb-0">📍 @shop.Address</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-uppercase fw-bold">Навигация</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li><a asp-controller="Products" asp-action="Index">Каталог</a></li>
+                        <li><a asp-controller="Home" asp-action="About">О магазине</a></li>
+                        <li><a asp-controller="Home" asp-action="Contacts">Контакты</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center small mt-3 text-muted">© @DateTime.Now.Year «Садовод». Все права защищены.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/push.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

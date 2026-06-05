@@ -1,0 +1,55 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Оформление заказа";
+}
+<h1 class="mb-3">Оформление заказа</h1>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card sadovod-card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Данные получателя</h5>
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Comment" class="form-label"></label>
+                        <textarea asp-for="Comment" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Подтвердить заказ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card sadovod-card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Ваш заказ</h5>
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>@item.Name × @item.Quantity</span>
+                            <span class="fw-bold">@item.Subtotal.ToString("0.00") ₽</span>
+                        </li>
+                    }
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="fw-bold">Итого</span>
+                        <span class="fw-bold fs-5 text-success">@Model.Cart.Total.ToString("0.00") ₽</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

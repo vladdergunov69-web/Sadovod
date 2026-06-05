@@ -1,0 +1,17 @@
+## Build
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+*.log
+## Generated
+wwwroot/images/products/*.jpg
+wwwroot/images/products/*.jpeg
+wwwroot/images/products/*.png
+wwwroot/images/products/*.webp
+!wwwroot/images/products/no-photo.png
+## Local
+appsettings.Local.json
+secrets/

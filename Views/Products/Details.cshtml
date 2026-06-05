@@ -1,0 +1,29 @@
+@model Sadovod.Models.Entities.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card sadovod-card">
+            <img src="@(Model.ImageUrl ?? "/images/products/no-photo.png")" class="img-fluid rounded" alt="@Model.Name" />
+        </div>
+    </div>
+    <div class="col-md-7">
+        <h1 class="mb-2">@Model.Name</h1>
+        <div class="text-muted mb-3">@Model.Category?.Name @(string.IsNullOrEmpty(Model.Variety) ? "" : "· сорт: " + Model.Variety)</div>
+        <h3 class="text-success mb-3">@Model.Price.ToString("0.00") ₽</h3>
+        <div class="mb-3">
+            <span class="badge @(Model.Quantity > 0 ? "badge-success" : "badge-danger") fs-6">
+                @(Model.Quantity > 0 ? $"В наличии: {Model.Quantity} шт." : "Нет в наличии")
+            </span>
+        </div>
+        <p class="mb-4">@Model.Description</p>
+
+        <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="productId" value="@Model.Id" />
+            <input type="number" name="qty" value="1" min="1" max="@Model.Quantity" class="form-control" style="width: 100px;" />
+            <button type="submit" class="btn btn-success btn-lg" @(Model.Quantity == 0 ? "disabled" : "")>🛒 В корзину</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Назад к каталогу</a>
+        </form>
+    </div>
+</div>

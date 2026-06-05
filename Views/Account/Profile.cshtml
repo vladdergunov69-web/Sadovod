@@ -1,0 +1,40 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Личный кабинет";
+}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card sadovod-card">
+            <div class="card-body">
+                <h3 class="card-title mb-3">Личный кабинет</h3>
+                <form method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="Login" class="form-label"></label>
+                        <input asp-for="Login" class="form-control" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                    <button class="btn btn-success" type="submit">Сохранить</button>
+                </form>
+                <hr />
+                <button id="push-subscribe" class="btn btn-outline-success">
+                    🔔 Подписаться на push-уведомления
+                </button>
+                <small class="text-muted d-block mt-2">Получайте новости о скидках и поступлениях.</small>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

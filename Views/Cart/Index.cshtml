@@ -1,0 +1,64 @@
+@model CartViewModel
+@{
+    ViewData["Title"] = "Корзина";
+}
+<h1 class="mb-3">Корзина</h1>
+
+@if (Model.Items.Count == 0)
+{
+    <div class="alert alert-info">Ваша корзина пуста. <a asp-controller="Products" asp-action="Index">Перейти в каталог</a>.</div>
+}
+else
+{
+    <div class="card sadovod-card mb-3">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Товар</th>
+                        <th>Цена</th>
+                        <th style="width: 180px;">Количество</th>
+                        <th>Сумма</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td style="width: 80px;"><img src="@(item.ImageUrl ?? "/images/products/no-photo.png")" style="width: 64px; height: 64px; object-fit: cover;" class="rounded" /></td>
+                            <td><a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId">@item.Name</a></td>
+                            <td>@item.UnitPrice.ToString("0.00") ₽</td>
+                            <td>
+                                <form asp-action="UpdateQuantity" method="post" class="d-flex gap-2">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <input type="number" name="qty" value="@item.Quantity" min="1" max="@item.Stock" class="form-control form-control-sm" />
+                                    <button class="btn btn-sm btn-outline-success">OK</button>
+                                </form>
+                            </td>
+                            <td class="fw-bold text-success">@item.Subtotal.ToString("0.00") ₽</td>
+                            <td>
+                                <form asp-action="RemoveFromCart" method="post">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <button class="btn btn-sm btn-outline-danger">✖</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end fw-bold">Итого:</td>
+                        <td colspan="2" class="fw-bold fs-5 text-success">@Model.Total.ToString("0.00") ₽</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">К покупкам</a>
+        <a asp-controller="Orders" asp-action="Create" class="btn btn-success">Оформить заказ →</a>
+    </div>
+}

@@ -1,0 +1,9 @@
+@{
+    ViewData["Title"] = "Ошибка";
+    var code = ViewBag.StatusCode as int? ?? 500;
+}
+<div class="text-center py-5">
+    <h1 class="display-1 text-success">@code</h1>
+    <p class="lead">@(code == 404 ? "Страница не найдена." : "Произошла ошибка при обработке запроса.")</p>
+    <a class="btn btn-success" asp-controller="Home" asp-action="Index">На главную</a>
+</div>

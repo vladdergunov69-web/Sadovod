@@ -1,0 +1,36 @@
+@model SettingsViewModel
+@{
+    ViewData["Title"] = "Настройки магазина";
+}
+<h1 class="mb-3">Настройки магазина</h1>
+<div class="card sadovod-card">
+    <div class="card-body">
+        <form asp-action="Save" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="AboutUs" class="form-label"></label>
+                    <textarea asp-for="AboutUs" class="form-control" rows="10"></textarea>
+                </div>
+            </div>
+            <button class="btn btn-success mt-3" type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

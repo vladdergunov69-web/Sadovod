@@ -1,0 +1,20 @@
+@model Sadovod.Models.Entities.Product
+@{
+    ViewData["Title"] = "Удалить товар";
+}
+<h1 class="mb-3">Удалить товар</h1>
+<div class="card sadovod-card">
+    <div class="card-body">
+        <p>Вы действительно хотите удалить товар <strong>«@Model.Name»</strong>?</p>
+        <dl class="row mb-3">
+            <dt class="col-sm-3">Категория</dt><dd class="col-sm-9">@Model.Category?.Name</dd>
+            <dt class="col-sm-3">Цена</dt><dd class="col-sm-9">@Model.Price.ToString("0.00") ₽</dd>
+            <dt class="col-sm-3">Остаток</dt><dd class="col-sm-9">@Model.Quantity</dd>
+        </dl>
+        <form method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-danger" type="submit">Удалить</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Отмена</a>
+        </form>
+    </div>
+</div>

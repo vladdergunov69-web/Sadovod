@@ -1,0 +1,62 @@
+@model ProductEditViewModel
+@{
+    ViewData["Title"] = "Редактировать товар";
+    var cats = ViewBag.Categories as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
+}
+<h1 class="mb-3">Редактирование</h1>
+<div class="card sadovod-card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ImageUrl" />
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CategoryId" class="form-label"></label>
+                    <select asp-for="CategoryId" asp-items="cats" class="form-select"><option value="">-- категория --</option></select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Quantity" class="form-label"></label>
+                    <input asp-for="Quantity" class="form-control" />
+                    <span asp-validation-for="Quantity" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Variety" class="form-label"></label>
+                    <input asp-for="Variety" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Текущее изображение</label>
+                    <div><img src="@(Model.ImageUrl ?? "/images/products/no-photo.png")" style="max-height: 140px;" class="rounded border" /></div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Image" class="form-label"></label>
+                    <input asp-for="Image" type="file" class="form-control" accept="image/*" />
+                    <small class="text-muted">Оставьте пустым, чтобы не менять</small>
+                    <span asp-validation-for="Image" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-success">Сохранить</button>
+                <a class="btn btn-outline-secondary" asp-action="Index">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

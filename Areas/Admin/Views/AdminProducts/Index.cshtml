@@ -1,0 +1,36 @@
+@model IReadOnlyList<Sadovod.Models.Entities.Product>
+@{
+    ViewData["Title"] = "Товары";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Товары</h1>
+    <a class="btn btn-success" asp-action="Create">+ Добавить товар</a>
+</div>
+<div class="card sadovod-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr><th></th><th>Название</th><th>Категория</th><th>Сорт</th><th>Цена</th><th>Остаток</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td style="width:64px;">
+                            <img src="@(p.ImageUrl ?? "/images/products/no-photo.png")" style="width:48px; height:48px; object-fit: cover;" class="rounded" />
+                        </td>
+                        <td>@p.Name</td>
+                        <td>@p.Category?.Name</td>
+                        <td>@p.Variety</td>
+                        <td>@p.Price.ToString("0.00") ₽</td>
+                        <td>@p.Quantity</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-success" asp-action="Edit" asp-route-id="@p.Id">Редактировать</a>
+                            <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@p.Id">Удалить</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
