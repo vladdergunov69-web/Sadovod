@@ -1,0 +1,127 @@
+@model AdminOrderListViewModel
+@{
+    ViewData["Title"] = "Заказы";
+}
+<h1 class="mb-3">Заказы</h1>
+
+<form method="get" class="card sadovod-card mb-3">
+    <div class="card-body row g-2">
+        <div class="col-md-4">
+            <label class="form-label">Статус</label>
+            <select name="statusId" class="form-select">
+                <option value="">Все</option>
+                @foreach (var s in Model.Statuses)
+                {
+                    if (Model.StatusId == s.Id)
+                    {
+                        <option value="@s.Id" selected>@s.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@s.Id">@s.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100">Найти</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Orders.Count == 0)
+{
+    <div class="alert alert-info">Заказы не найдены.</div>
+}
+else
+{
+    <div class="card sadovod-card">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Дата</th>
+                        <th>Покупатель</th>
+                        <th>Состав</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th style="width: 280px;">Сменить статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.Orders)
+                    {
+                        <tr>
+                            <td class="fw-bold">@o.Id</td>
+                            <td class="text-nowrap">@o.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                @(o.User?.FullName ?? "—")
+                                <div class="small text-muted">@(o.User?.Login ?? "")</div>
+                            </td>
+                            <td>
+                                <ul class="list-unstyled mb-0 small">
+                                    @foreach (var it in o.Items)
+                                    {
+                                        <li>@(it.Product?.Name ?? $"#{it.ProductId}") × @it.Quantity</li>
+                                    }
+                                </ul>
+                            </td>
+                            <td class="fw-bold text-success text-nowrap">@o.TotalAmount.ToString("0.00") ₽</td>
+                            <td>
+                                @{
+                                    var badge = o.StatusId switch
+                                    {
+                                        1 => "badge-info",
+                                        2 => "badge-info",
+                                        3 => "badge-success",
+                                        4 => "badge-danger",
+                                        _ => "badge-info"
+                                    };
+                                }
+                                <span class="badge @badge">@(o.Status?.Name ?? "—")</span>
+                            </td>
+                            <td>
+                                <form asp-action="ChangeStatus" method="post" class="d-flex gap-2">
+                                    <input type="hidden" name="id" value="@o.Id" />
+                                    <input type="hidden" name="page" value="@Model.Page" />
+                                    <input type="hidden" name="filterStatusId" value="@Model.StatusId" />
+                                    <select name="statusId" class="form-select form-select-sm">
+                                        @foreach (var s in Model.Statuses)
+                                        {
+                                            if (s.Id == o.StatusId)
+                                            {
+                                                <option value="@s.Id" selected>@s.Name</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@s.Id">@s.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                    <button class="btn btn-sm btn-outline-success">OK</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Page ? "active" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-statusId="@Model.StatusId"
+                           asp-route-page="@i">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}

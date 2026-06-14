@@ -437,39 +437,35 @@ GO
 
 -- -----------------------------------------------
 -- 4.4 trg_Users_Update — аудит изменения профиля пользователя
---     Срабатывает только при изменении FullName или Phone.
+--     Срабатывает при изменении ФИО, телефона ИЛИ роли (RoleId).
 --     Пароль и Login намеренно не логируются.
+--     CREATE OR ALTER — безопасно перезапускать, обновляет существующий триггер.
 -- -----------------------------------------------
-IF OBJECT_ID('dbo.trg_Users_Update', 'TR') IS NULL
+CREATE OR ALTER TRIGGER trg_Users_Update ON dbo.Users AFTER UPDATE
+AS
 BEGIN
-    EXEC('
-    CREATE TRIGGER trg_Users_Update ON dbo.Users AFTER UPDATE
-    AS
-    BEGIN
-        SET NOCOUNT ON;
-        -- Реагируем только на изменения ФИО или телефона
-        IF NOT UPDATE(FullName) AND NOT UPDATE(Phone) RETURN;
+    SET NOCOUNT ON;
+    -- Реагируем на изменения ФИО, телефона или роли
+    IF NOT UPDATE(FullName) AND NOT UPDATE(Phone) AND NOT UPDATE(RoleId) RETURN;
 
-        DECLARE @UserId INT = TRY_CONVERT(INT, SESSION_CONTEXT(N''UserId''));
+    DECLARE @UserId INT = TRY_CONVERT(INT, SESSION_CONTEXT(N'UserId'));
 
-        INSERT INTO dbo.AuditLog (TableName, Operation, OldValue, NewValue, UserId)
-        SELECT
-            ''Users'',
-            ''U'',
-            (SELECT d.Id, d.FullName, d.Phone
-             FROM deleted d WHERE d.Id = i.Id
-             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
-            (SELECT i.Id, i.FullName, i.Phone
-             FROM inserted i WHERE i.Id = del.Id
-             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
-            @UserId
-        FROM deleted del
-        INNER JOIN inserted i ON del.Id = i.Id
-        WHERE ISNULL(del.FullName, '''') <> ISNULL(i.FullName, '''')
-           OR ISNULL(del.Phone,    '''') <> ISNULL(i.Phone,    '''');
-    END
-    ');
-    PRINT 'Триггер trg_Users_Update создан.';
+    INSERT INTO dbo.AuditLog (TableName, Operation, OldValue, NewValue, UserId)
+    SELECT
+        'Users',
+        'U',
+        (SELECT d.Id, d.FullName, d.Phone, d.RoleId
+         FROM deleted d WHERE d.Id = i.Id
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
+        (SELECT i.Id, i.FullName, i.Phone, i.RoleId
+         FROM inserted i WHERE i.Id = del.Id
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
+        @UserId
+    FROM deleted del
+    INNER JOIN inserted i ON del.Id = i.Id
+    WHERE ISNULL(del.FullName, '') <> ISNULL(i.FullName, '')
+       OR ISNULL(del.Phone,    '') <> ISNULL(i.Phone,    '')
+       OR del.RoleId <> i.RoleId;
 END
 GO
 

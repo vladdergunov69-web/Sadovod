@@ -17,12 +17,15 @@ public class ProductsController : Controller
         _settings = settings;
     }
 
-    public async Task<IActionResult> Index(string? search, int? categoryId, int page = 1)
+    public async Task<IActionResult> Index(string? search, int? categoryId,
+        decimal? minPrice, decimal? maxPrice, bool inStockOnly = false,
+        string? sort = null, int page = 1)
     {
         const int pageSize = 12;
         if (page < 1) page = 1;
 
         var q = _db.Products.Include(p => p.Category).AsNoTracking().AsQueryable();
+
         if (!string.IsNullOrWhiteSpace(search))
         {
             var s = search.Trim();
@@ -31,9 +34,27 @@ public class ProductsController : Controller
         if (categoryId.HasValue && categoryId.Value > 0)
             q = q.Where(p => p.CategoryId == categoryId.Value);
 
+        // Фильтр по диапазону цены
+        if (minPrice.HasValue)
+            q = q.Where(p => p.Price >= minPrice.Value);
+        if (maxPrice.HasValue)
+            q = q.Where(p => p.Price <= maxPrice.Value);
+
+        // Фильтр «только в наличии»
+        if (inStockOnly)
+            q = q.Where(p => p.Quantity > 0);
+
+        // Динамическая сортировка
+        q = sort switch
+        {
+            "price_asc" => q.OrderBy(p => p.Price),
+            "price_desc" => q.OrderByDescending(p => p.Price),
+            "stock_desc" => q.OrderByDescending(p => p.Quantity),
+            _ => q.OrderBy(p => p.Name)
+        };
+
         var total = await q.CountAsync();
         var items = await q
-            .OrderBy(p => p.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -44,6 +65,10 @@ public class ProductsController : Controller
             Categories = await _settings.GetCategoriesAsync(),
             Search = search,
             CategoryId = categoryId,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
+            InStockOnly = inStockOnly,
+            Sort = sort,
             Page = page,
             PageSize = pageSize,
             TotalCount = total

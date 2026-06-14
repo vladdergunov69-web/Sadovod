@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Sadovod.Models.Entities;
 
 namespace Sadovod.Data;
@@ -152,6 +153,14 @@ public class SadovodDbContext : DbContext
         await using var cmd = Database.GetDbConnection().CreateCommand();
         cmd.CommandText = "dbo.SetSessionUserContext";
         cmd.CommandType = CommandType.StoredProcedure;
+
+        // Если SaveChanges выполняется внутри явной транзакции (например, при
+        // оформлении заказа), ADO-команду нужно привязать к этой транзакции,
+        // иначе SQL Server бросит исключение и заказ не создастся.
+        var currentTx = Database.CurrentTransaction?.GetDbTransaction();
+        if (currentTx is not null)
+            cmd.Transaction = currentTx;
+
         var p = new SqlParameter("@UserId", SqlDbType.Int)
         {
             Value = userId.HasValue ? userId.Value : DBNull.Value

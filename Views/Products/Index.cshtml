@@ -4,29 +4,56 @@
 }
 <h1 class="mb-3">Каталог товаров</h1>
 
-<form method="get" class="row g-2 mb-4">
-    <div class="col-md-5">
-        <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Поиск по названию..." />
-    </div>
-    <div class="col-md-4">
-        <select name="categoryId" class="form-select">
-            <option value="">Все категории</option>
-            @foreach (var c in Model.Categories)
-            {
-                if (Model.CategoryId == c.Id)
+<form method="get" class="card sadovod-card mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-5">
+            <label class="form-label">Поиск</label>
+            <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Поиск по названию..." />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Категория</label>
+            <select name="categoryId" class="form-select">
+                <option value="">Все категории</option>
+                @foreach (var c in Model.Categories)
                 {
-                    <option value="@c.Id" selected>@c.Name</option>
+                    if (Model.CategoryId == c.Id)
+                    {
+                        <option value="@c.Id" selected>@c.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
                 }
-                else
-                {
-                    <option value="@c.Id">@c.Name</option>
-                }
-            }
-        </select>
-    </div>
-    <div class="col-md-3 d-flex gap-2">
-        <button class="btn btn-success flex-grow-1" type="submit">Найти</button>
-        <a class="btn btn-outline-secondary" asp-action="Index">Сброс</a>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Сортировка</label>
+            <select name="sort" class="form-select">
+                <option value="name" selected="@(Model.Sort == "name" || string.IsNullOrEmpty(Model.Sort))">По названию</option>
+                <option value="price_asc" selected="@(Model.Sort == "price_asc")">Цена ↑</option>
+                <option value="price_desc" selected="@(Model.Sort == "price_desc")">Цена ↓</option>
+                <option value="stock_desc" selected="@(Model.Sort == "stock_desc")">По наличию</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Цена от</label>
+            <input type="number" name="minPrice" value="@Model.MinPrice" min="0" step="0.01" class="form-control" placeholder="0" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Цена до</label>
+            <input type="number" name="maxPrice" value="@Model.MaxPrice" min="0" step="0.01" class="form-control" placeholder="∞" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="form-check">
+                <input type="checkbox" name="inStockOnly" value="true" id="inStockOnly" class="form-check-input" @(Model.InStockOnly ? "checked" : "") />
+                <label class="form-check-label" for="inStockOnly">Только в наличии</label>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex align-items-end gap-2">
+            <button class="btn btn-success flex-grow-1" type="submit">Найти</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Сброс</a>
+        </div>
     </div>
 </form>
 
@@ -76,6 +103,10 @@ else
                         <a class="page-link" asp-action="Index"
                            asp-route-search="@Model.Search"
                            asp-route-categoryId="@Model.CategoryId"
+                           asp-route-minPrice="@Model.MinPrice"
+                           asp-route-maxPrice="@Model.MaxPrice"
+                           asp-route-inStockOnly="@Model.InStockOnly"
+                           asp-route-sort="@Model.Sort"
                            asp-route-page="@i">@i</a>
                     </li>
                 }

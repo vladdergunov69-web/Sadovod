@@ -11,6 +11,7 @@ public interface IPushNotificationService
     string PublicKey { get; }
     Task SaveSubscriptionAsync(int? userId, string endpoint, string p256dh, string auth);
     Task<int> SendToAllAsync(string title, string body, string? url);
+    Task<int> SendToUserAsync(int? userId, string title, string body, string? url);
     Task<int> CountAsync();
 }
 
@@ -55,6 +56,20 @@ public class PushNotificationService : IPushNotificationService
 
     public async Task<int> SendToAllAsync(string title, string body, string? url)
     {
+        var subs = await _db.PushSubscriptions.ToListAsync();
+        return await SendToSubscriptionsAsync(subs, title, body, url);
+    }
+
+    public async Task<int> SendToUserAsync(int? userId, string title, string body, string? url)
+    {
+        if (userId is null) return 0;
+        var subs = await _db.PushSubscriptions.Where(s => s.UserId == userId).ToListAsync();
+        return await SendToSubscriptionsAsync(subs, title, body, url);
+    }
+
+    private async Task<int> SendToSubscriptionsAsync(
+        List<Models.Entities.PushSubscription> subs, string title, string body, string? url)
+    {
         var subject = _cfg["PushSettings:Subject"] ?? "mailto:admin@example.com";
         var pub = _cfg["PushSettings:PublicKey"];
         var priv = _cfg["PushSettings:PrivateKey"];
@@ -63,11 +78,11 @@ public class PushNotificationService : IPushNotificationService
             _log.LogError("VAPID-ключи не настроены.");
             return 0;
         }
+        if (subs.Count == 0) return 0;
 
         var client = new WebPushClient();
         var vapid = new VapidDetails(subject, pub, priv);
 
-        var subs = await _db.PushSubscriptions.ToListAsync();
         var payload = JsonSerializer.Serialize(new { title, body, url });
         var sent = 0;
         var dead = new List<Models.Entities.PushSubscription>();
