@@ -41,15 +41,17 @@ services:
       start_period: 30s
 
   db-init:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    build:
+      context: .
+      dockerfile: db-init.Dockerfile
     container_name: sadovod-db-init
     depends_on:
       db:
         condition: service_healthy
     environment:
       MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
-    volumes:
-      - ./Scripts:/scripts:ro
+    # Скрипт InitDatabase.sql вшит в образ (см. db-init.Dockerfile) — bind-mount
+    # не используется из-за проблем с не-ASCII путями на Windows.
     # Создаём БД (если её нет) и накатываем идемпотентный InitDatabase.sql.
     # -f 65001 — входной файл в кодировке UTF-8 (кириллица в seed-данных).
     entrypoint:
