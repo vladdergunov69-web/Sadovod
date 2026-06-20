@@ -214,6 +214,32 @@ BEGIN
 END
 GO
 
+-- -----------------------------------------------
+-- 1.12 LoginAuditLog — журнал попыток входа / выхода
+-- -----------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'LoginAuditLog')
+BEGIN
+    CREATE TABLE dbo.LoginAuditLog (
+        Id        BIGINT        NOT NULL IDENTITY(1,1),
+        Login     NVARCHAR(100) NOT NULL,
+        UserId    INT               NULL,
+        Result    CHAR(1)       NOT NULL,   -- S = Success, F = Failed
+        IpAddress NVARCHAR(45)      NULL,
+        LoginAt   DATETIME      NOT NULL CONSTRAINT DF_LoginAuditLog_LoginAt DEFAULT (GETDATE()),
+        LogoutAt  DATETIME          NULL,
+        CONSTRAINT PK_LoginAuditLog PRIMARY KEY (Id)
+    );
+    PRINT 'Таблица LoginAuditLog создана.';
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_LoginAuditLog_Login' AND object_id = OBJECT_ID('dbo.LoginAuditLog'))
+    CREATE INDEX IX_LoginAuditLog_Login ON dbo.LoginAuditLog (Login);
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_LoginAuditLog_LoginAt' AND object_id = OBJECT_ID('dbo.LoginAuditLog'))
+    CREATE INDEX IX_LoginAuditLog_LoginAt ON dbo.LoginAuditLog (LoginAt);
+GO
+
 -- =============================================================================
 -- 2. ВНЕШНИЕ КЛЮЧИ
 -- =============================================================================
@@ -335,6 +361,18 @@ BEGIN
         ON DELETE CASCADE
         ON UPDATE NO ACTION;
     PRINT 'FK_Favorites_Products создан.';
+END
+GO
+
+-- LoginAuditLog → Users (Set Null при удалении пользователя)
+IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_LoginAuditLog_Users')
+BEGIN
+    ALTER TABLE dbo.LoginAuditLog
+        ADD CONSTRAINT FK_LoginAuditLog_Users
+        FOREIGN KEY (UserId) REFERENCES dbo.Users (Id)
+        ON DELETE SET NULL
+        ON UPDATE NO ACTION;
+    PRINT 'FK_LoginAuditLog_Users создан.';
 END
 GO
 

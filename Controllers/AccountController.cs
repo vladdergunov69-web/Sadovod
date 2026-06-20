@@ -43,13 +43,13 @@ public class AccountController : Controller
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
-        var (ok, error, user) = await _auth.ValidateAsync(model.Login, model.Password);
+        var (ok, error, user, auditId) = await _auth.ValidateAsync(model.Login, model.Password);
         if (!ok || user is null)
         {
             ModelState.AddModelError(string.Empty, error ?? "Ошибка входа");
             return View(model);
         }
-        await _auth.SignInAsync(HttpContext, user, model.RememberMe);
+        await _auth.SignInAsync(HttpContext, user, model.RememberMe, auditId);
         if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
             return Redirect(model.ReturnUrl);
         return RedirectToAction("Index", "Home");

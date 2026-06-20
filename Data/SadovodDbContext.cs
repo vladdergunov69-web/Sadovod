@@ -30,6 +30,7 @@ public class SadovodDbContext : DbContext
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
+    public DbSet<LoginAuditLog> LoginAuditLogs => Set<LoginAuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -138,6 +139,19 @@ public class SadovodDbContext : DbContext
             // Без обратных навигаций в User/Product — существующие сущности не меняем.
             b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
             b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<LoginAuditLog>(b =>
+        {
+            b.ToTable("LoginAuditLog");
+            b.Property(x => x.Login).HasMaxLength(100).IsRequired();
+            b.Property(x => x.Result).HasColumnType("char(1)").IsRequired();
+            b.Property(x => x.IpAddress).HasMaxLength(45);
+            b.Property(x => x.LoginAt).HasDefaultValueSql("GETDATE()");
+            b.HasIndex(x => x.Login);
+            b.HasIndex(x => x.LoginAt);
+            // Без обратной навигации в User — существующую сущность не меняем.
+            b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
         });
 
         base.OnModelCreating(modelBuilder);
