@@ -15,6 +15,9 @@
     {
         <div class="col-12 col-sm-6 col-lg-3">
             <div class="card sadovod-card h-100">
+                <div class="fav-overlay position-absolute top-0 end-0 m-2">
+                    @await Html.PartialAsync("_FavoriteButton", p.Id)
+                </div>
                 <a asp-controller="Products" asp-action="Details" asp-route-id="@p.Id">
                     <img src="@(p.ImageUrl ?? "/images/products/no-photo.png")" class="card-img-top" alt="@p.Name" />
                 </a>

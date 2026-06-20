@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sadovod.Data;
@@ -10,11 +11,13 @@ public class ProductsController : Controller
 {
     private readonly SadovodDbContext _db;
     private readonly ISettingsService _settings;
+    private readonly IFavoriteService _fav;
 
-    public ProductsController(SadovodDbContext db, ISettingsService settings)
+    public ProductsController(SadovodDbContext db, ISettingsService settings, IFavoriteService fav)
     {
         _db = db;
         _settings = settings;
+        _fav = fav;
     }
 
     public async Task<IActionResult> Index(string? search, int? categoryId,
@@ -73,6 +76,7 @@ public class ProductsController : Controller
             PageSize = pageSize,
             TotalCount = total
         };
+        ViewData["FavoriteIds"] = await CurrentFavoritesAsync();
         return View(vm);
     }
 
@@ -83,6 +87,15 @@ public class ProductsController : Controller
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);
         if (product is null) return NotFound();
+        ViewData["FavoriteIds"] = await CurrentFavoritesAsync();
         return View(product);
+    }
+
+    private async Task<HashSet<int>> CurrentFavoritesAsync()
+    {
+        if (User.Identity?.IsAuthenticated != true) return new();
+        var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(id, out var userId)) return new();
+        return await _fav.GetProductIdsAsync(userId);
     }
 }

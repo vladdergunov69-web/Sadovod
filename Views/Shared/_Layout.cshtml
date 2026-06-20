@@ -1,8 +1,16 @@
 @inject Sadovod.Services.ISettingsService Settings
 @inject Sadovod.Services.ICartService Cart
+@inject Sadovod.Services.IFavoriteService Favorites
 @{
     var shop = await Settings.GetAsync();
     var cartCount = Cart.GetRaw(Context).Values.Sum();
+
+    var favCount = 0;
+    if (User.Identity?.IsAuthenticated == true
+        && int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var currentUserId))
+    {
+        favCount = await Favorites.GetCountAsync(currentUserId);
+    }
 }
 <!DOCTYPE html>
 <html lang="ru" data-theme="light">
@@ -22,6 +30,8 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
+    @* Скрытый antiforgery-токен для AJAX-запросов (избранное и т.п.) на любой странице *@
+    @Html.AntiForgeryToken()
     <header>
         <nav class="navbar navbar-expand-lg sticky-top sadovod-navbar">
             <div class="container">
@@ -54,12 +64,26 @@
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="MyOrders">Мои заказы</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Profile">@(User.FindFirst("FullName")?.Value ?? User.Identity.Name)</a></li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link">Выход</button>
-                                </form>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="accountMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    👤 @(User.FindFirst("FullName")?.Value ?? User.Identity.Name)
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Профиль</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders">Мои заказы</a></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex justify-content-between align-items-center" asp-controller="Favorites" asp-action="Index">
+                                            <span>❤ Избранное</span>
+                                            <span id="fav-count" class="badge rounded-pill bg-success ms-2 @(favCount > 0 ? "" : "d-none")">@favCount</span>
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item">Выход</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         else
@@ -116,6 +140,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/push.js" asp-append-version="true"></script>
+    <script src="~/js/favorites.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

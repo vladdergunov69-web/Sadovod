@@ -29,6 +29,7 @@ public class SadovodDbContext : DbContext
     public DbSet<ShopSetting> ShopSettings => Set<ShopSetting>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
+    public DbSet<Favorite> Favorites => Set<Favorite>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -127,6 +128,16 @@ public class SadovodDbContext : DbContext
             b.Property(x => x.P256dh).HasMaxLength(200).IsRequired();
             b.Property(x => x.Auth).HasMaxLength(100).IsRequired();
             b.HasOne(x => x.User).WithMany(u => u.PushSubscriptions).HasForeignKey(x => x.UserId);
+        });
+
+        modelBuilder.Entity<Favorite>(b =>
+        {
+            b.ToTable("Favorites");
+            b.Property(x => x.AddedAt).HasDefaultValueSql("GETDATE()");
+            b.HasIndex(x => new { x.UserId, x.ProductId }).IsUnique();
+            // Без обратных навигаций в User/Product — существующие сущности не меняем.
+            b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            b.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

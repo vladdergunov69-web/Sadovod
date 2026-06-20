@@ -82,11 +82,14 @@ else
                                 @(p.Quantity > 0 ? $"В наличии: {p.Quantity}" : "Нет")
                             </span>
                         </div>
-                        <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                            <input type="hidden" name="productId" value="@p.Id" />
-                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                            <button type="submit" class="btn btn-success w-100" @(p.Quantity == 0 ? "disabled" : "")>В корзину</button>
-                        </form>
+                        <div class="d-flex gap-2">
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="flex-grow-1">
+                                <input type="hidden" name="productId" value="@p.Id" />
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                <button type="submit" class="btn btn-success w-100" @(p.Quantity == 0 ? "disabled" : "")>В корзину</button>
+                            </form>
+                            @await Html.PartialAsync("_FavoriteButton", p.Id)
+                        </div>
                     </div>
                 </div>
             </div>

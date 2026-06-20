@@ -197,6 +197,23 @@ BEGIN
 END
 GO
 
+-- -----------------------------------------------
+-- 1.11 Favorites — избранные товары пользователей
+-- -----------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Favorites')
+BEGIN
+    CREATE TABLE dbo.Favorites (
+        Id        INT      NOT NULL IDENTITY(1,1),
+        UserId    INT      NOT NULL,
+        ProductId INT      NOT NULL,
+        AddedAt   DATETIME NOT NULL CONSTRAINT DF_Favorites_AddedAt DEFAULT (GETDATE()),
+        CONSTRAINT PK_Favorites              PRIMARY KEY (Id),
+        CONSTRAINT UQ_Favorites_User_Product UNIQUE      (UserId, ProductId)
+    );
+    PRINT 'Таблица Favorites создана.';
+END
+GO
+
 -- =============================================================================
 -- 2. ВНЕШНИЕ КЛЮЧИ
 -- =============================================================================
@@ -294,6 +311,30 @@ BEGIN
         ON DELETE SET NULL
         ON UPDATE NO ACTION;
     PRINT 'FK_PushSubscriptions_Users создан.';
+END
+GO
+
+-- Favorites → Users (Cascade при удалении пользователя)
+IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_Favorites_Users')
+BEGIN
+    ALTER TABLE dbo.Favorites
+        ADD CONSTRAINT FK_Favorites_Users
+        FOREIGN KEY (UserId) REFERENCES dbo.Users (Id)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION;
+    PRINT 'FK_Favorites_Users создан.';
+END
+GO
+
+-- Favorites → Products (Cascade при удалении товара)
+IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_Favorites_Products')
+BEGIN
+    ALTER TABLE dbo.Favorites
+        ADD CONSTRAINT FK_Favorites_Products
+        FOREIGN KEY (ProductId) REFERENCES dbo.Products (Id)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION;
+    PRINT 'FK_Favorites_Products создан.';
 END
 GO
 

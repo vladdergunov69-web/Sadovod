@@ -1,0 +1,27 @@
+@model int
+@{
+    var productId = Model;
+    var favIds = ViewData["FavoriteIds"] as HashSet<int>;
+    var isFav = favIds is not null && favIds.Contains(productId);
+    var isAuth = User.Identity?.IsAuthenticated == true;
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+@if (isAuth)
+{
+    <button type="button"
+            class="btn fav-btn @(isFav ? "is-fav" : "")"
+            data-product-id="@productId"
+            data-fav="@(isFav ? "1" : "0")"
+            aria-pressed="@(isFav ? "true" : "false")"
+            title="@(isFav ? "Убрать из избранного" : "В избранное")">
+        <span class="fav-icon">@(isFav ? "❤" : "🤍")</span>
+    </button>
+}
+else
+{
+    <a class="btn fav-btn"
+       asp-controller="Account" asp-action="Login" asp-route-returnUrl="@returnUrl"
+       title="Войдите, чтобы добавить в избранное">
+        <span class="fav-icon">🤍</span>
+    </a>
+}
