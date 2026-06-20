@@ -9,6 +9,15 @@
     <UserSecretsId>sadovod-shop-2026</UserSecretsId>
   </PropertyGroup>
 
+  <!-- Вложенная git-копия проекта (Sadovod_git) не должна компилироваться вместе
+       с основным проектом. В самой копии этой папки нет — правило там безвредно. -->
+  <ItemGroup>
+    <Compile Remove="Sadovod_git\**\*.cs" />
+    <Content Remove="Sadovod_git\**\*" />
+    <EmbeddedResource Remove="Sadovod_git\**\*" />
+    <None Remove="Sadovod_git\**\*" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />

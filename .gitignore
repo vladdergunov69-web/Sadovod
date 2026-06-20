@@ -15,3 +15,5 @@ wwwroot/images/products/*.webp
 ## Local
 appsettings.Local.json
 secrets/
+.env
+.env.local

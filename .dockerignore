@@ -1,0 +1,31 @@
+# Сборочные артефакты
+**/bin/
+**/obj/
+**/out/
+
+# Git и IDE
+.git/
+.gitignore
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Секреты и локальные настройки
+.env
+appsettings.Local.json
+secrets/
+
+# Git-зеркало проекта (вложенная копия репозитория)
+Sadovod_git/
+
+# Docker-файлы (не нужны внутри образа)
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Документация (не входит в образ приложения)
+Отчёты/
+Руководства/
+ТЗ/
+README.md
